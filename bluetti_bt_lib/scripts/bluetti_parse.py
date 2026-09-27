@@ -68,3 +68,6 @@ def start():
     logging.basicConfig(level=logging.WARNING)
 
     asyncio.run(async_parse_file(args.file))
+
+if __name__ == "__main__":
+    start()

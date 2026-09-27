@@ -46,7 +46,7 @@ def start():
         "-t", "--type", type=str, help="Type of the powerstation (AC70 f.ex.)"
     )
     parser.add_argument(
-        "-e", "--encryption", type=bool, help="Add this if encryption is needed"
+        "-e", "--encryption", action="store_true", help="Add this if encryption is needed"
     )
     args = parser.parse_args()
 
@@ -57,3 +57,6 @@ def start():
     logging.basicConfig(level=logging.WARNING)
 
     asyncio.run(async_read_device(args.mac, args.type, args.encryption))
+
+if __name__ == "__main__":
+    start()
