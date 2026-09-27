@@ -1,7 +1,6 @@
 import asyncio
 from enum import Enum
 import logging
-import async_timeout
 from typing import Any, Callable, cast
 from bleak import BleakClient, BleakScanner
 from bleak.backends.characteristic import BleakGATTCharacteristic
@@ -72,7 +71,7 @@ class DeviceReader:
 
         async with self.polling_lock:
             try:
-                async with async_timeout.timeout(self.config.timeout):
+                async with asyncio.timeout(self.config.timeout):
                     self.logger.debug("Searching for device")
 
                     if self.ble_client:

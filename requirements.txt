@@ -1,5 +1,4 @@
 requests
-async_timeout
 bleak
 bleak_retry_connector
 crcmod

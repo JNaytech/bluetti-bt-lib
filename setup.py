@@ -24,7 +24,6 @@ setup(
     url="https://github.com/Patrick762/bluetti-bt-lib",
     packages=find_packages(),
     install_requires=[
-        "async_timeout",
         "bleak",
         "bleak_retry_connector",
         "crcmod",

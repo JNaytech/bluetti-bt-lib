@@ -69,5 +69,6 @@ def start():
 
     asyncio.run(async_parse_file(args.file))
 
+
 if __name__ == "__main__":
     start()

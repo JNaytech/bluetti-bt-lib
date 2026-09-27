@@ -79,7 +79,10 @@ def start():
     parser.add_argument("-m", "--mac", type=str, help="Mac-address of the powerstation")
     parser.add_argument("-v", "--version", type=int, help="IoT protocol version")
     parser.add_argument(
-        "-e", "--encryption", action="store_true", help="Add this if encryption is needed"
+        "-e",
+        "--encryption",
+        action="store_true",
+        help="Add this if encryption is needed",
     )
     args = parser.parse_args()
 
@@ -92,6 +95,7 @@ def start():
     logging.basicConfig(level=logging.WARNING)
 
     asyncio.run(async_read_device(args.mac, args.version, encryption))
+
 
 if __name__ == "__main__":
     start()
