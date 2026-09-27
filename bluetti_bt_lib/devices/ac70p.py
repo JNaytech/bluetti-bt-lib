@@ -7,7 +7,7 @@ from ..registers import *
 
 
 class AC70P(BluettiDevice):
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__(
             [
                 UIntField(

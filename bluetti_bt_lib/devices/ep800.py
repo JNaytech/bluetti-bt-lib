@@ -7,7 +7,7 @@ from ..registers import *
 
 
 class EP800(BluettiDevice):
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__(
             [
                 UIntField(

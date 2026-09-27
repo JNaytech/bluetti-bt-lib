@@ -7,7 +7,7 @@ from ..registers import *
 
 
 class EB3A(BluettiDevice):
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__(
             [
                 SelectField(
