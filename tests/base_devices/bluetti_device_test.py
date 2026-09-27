@@ -84,8 +84,7 @@ class TestBluettiDevice(unittest.TestCase):
 
         parsed = device.parse(starting_address=149, data=raw)
 
-        self.assertEqual(len(parsed), 1)
-        self.assertIsNone(parsed.get(FieldName.AC_O_SWITCH.value))
+        self.assertDictEqual(parsed, {})
 
     def test_build_write_command(self):
         fields = [
