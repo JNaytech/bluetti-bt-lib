@@ -41,9 +41,11 @@ setup(
             "bluetti-parse = bluetti_bt_lib.scripts.bluetti_parse:start",
         ],
     },
+    license="MIT",
     classifiers=[
         "Development Status :: 4 - Beta",
         "Intended Audience :: Developers",
         "Programming Language :: Python :: 3",
+        "License :: OSI Approved :: MIT License",
     ],
 )
