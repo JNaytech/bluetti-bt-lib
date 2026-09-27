@@ -11,15 +11,14 @@ class UIntField(DeviceField):
         multiplier: float = 1,
         min: int | None = None,
         max: int | None = None,
-        **kwargs,
     ):
-        super().__init__(name, address, 1, **kwargs)
+        super().__init__(name, address, 1)
         self.multiplier = multiplier
         self.min = min
         self.max = max
 
-    def parse(self, data: bytes) -> int:
-        val = struct.unpack("!H", data)[0]
+    def parse(self, data: bytes) -> int | float:
+        val: int | float = struct.unpack("!H", data)[0]
         if self.multiplier != 1:
             val = round(val * self.multiplier, 2)
         return val

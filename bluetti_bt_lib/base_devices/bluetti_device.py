@@ -1,3 +1,4 @@
+from enum import Enum
 from typing import Any
 
 from ..registers import ReadableRegisters, WriteableRegister
@@ -82,7 +83,7 @@ class BluettiDevice:
 
     def parse(
         self, starting_address: int, data: bytes, pack_num: int | None = None
-    ) -> dict:
+    ) -> dict[str, bool | int | float | Enum | str]:
         """Parse data"""
 
         # Offsets and size are counted in 2 byte chunks, so for the range we
@@ -98,11 +99,13 @@ class BluettiDevice:
         ]
 
         # Parse fields
-        parsed = {}
+        parsed: dict[str, bool | int | float | Enum | str] = {}
         for f in fields:
             data_start = 2 * (f.address - starting_address)
             field_data = data[data_start : data_start + 2 * f.size]
             value = f.parse(field_data)
+            if value is None:
+                continue
             if not f.in_range(value):
                 continue
             if pack_num is not None and f in self.pack_fields:
@@ -132,7 +135,7 @@ class BluettiDevice:
 
         return WriteableRegister(field.address, value)
 
-    def get_bool_fields(self):
+    def get_bool_fields(self) -> list[BoolField]:
         """Returns all bool fields for this device"""
         return [
             f
@@ -140,15 +143,15 @@ class BluettiDevice:
             if (isinstance(f, BoolField)) and not isinstance(f, SwitchField)
         ]
 
-    def get_switch_fields(self):
+    def get_switch_fields(self) -> list[SwitchField]:
         """Returns all switch fields for this device"""
         return [f for f in self.fields if isinstance(f, SwitchField)]
 
-    def get_select_fields(self):
+    def get_select_fields(self) -> list[SelectField]:
         """Returns all select fields for this device"""
         return [f for f in self.fields if isinstance(f, SelectField)]
 
-    def get_sensor_fields(self):
+    def get_sensor_fields(self) -> list[DeviceField]:
         """Returns all sensor fields for this device"""
         return [
             f

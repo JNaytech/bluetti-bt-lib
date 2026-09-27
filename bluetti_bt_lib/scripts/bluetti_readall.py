@@ -37,7 +37,7 @@ async def async_read_device(address: str, iot_version: int, encryption: bool):
 
     print("Writing data to file")
 
-    register_data = {}
+    register_data: dict[str, str] = {}
     for key, value in data.items():
         register_data[key] = value.hex()
 
@@ -49,7 +49,13 @@ async def async_read_device(address: str, iot_version: int, encryption: bool):
     )
 
     export_json_file(address, data_obj)
-    export_hexdump_file(address, register_data)
+
+    fixed_register_data: dict[int, str] = {}
+
+    for k, v in register_data.items():
+        fixed_register_data[int(k)] = v
+
+    export_hexdump_file(address, fixed_register_data)
 
 
 def export_json_file(address: str, data_obj):

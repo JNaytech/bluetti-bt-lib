@@ -33,7 +33,7 @@ class DeviceWriter:
             f"{__name__}.{mac_loggable(bleak_client.address).replace(':', '_')}"
         )
 
-    async def write(self, field: str, value: Any):
+    async def write(self, field: str, value: Any) -> None:
         if self.config.use_encryption:
             self.logger.error("Encryption on writes is not yet supported")
             return

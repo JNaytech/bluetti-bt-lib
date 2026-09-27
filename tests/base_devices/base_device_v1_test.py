@@ -41,7 +41,7 @@ class TestV1(unittest.IsolatedAsyncioTestCase):
 
         self.assertEqual(data.get(FieldName.B_SOC_TOTAL.value), 1)
         self.assertEqual(data.get(FieldName.D_INVERTER_TYPE.value), "AC300")
-        self.assertEqual(data.get(FieldName.D_SERIAL.value), 1000000000000)
+        self.assertEqual(data.get(FieldName.D_SERIAL.value), "1000000000000")
         self.assertEqual(data.get(FieldName.DC_I_P_TOTAL.value), 500)
         self.assertEqual(data.get(FieldName.AC_I_P_TOTAL.value), 600)
         self.assertEqual(data.get(FieldName.AC_O_P_TOTAL.value), 2500)

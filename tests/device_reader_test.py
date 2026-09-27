@@ -38,8 +38,10 @@ class TestDeviceReader(unittest.IsolatedAsyncioTestCase):
 
         data = await reader.read()
 
+        self.assertIsNotNone(data)
+
         self.assertEqual(data.get(FieldName.D_INVERTER_TYPE.value), "AC300")
-        self.assertEqual(data.get(FieldName.D_SERIAL.value), 2300000000000)
+        self.assertEqual(data.get(FieldName.D_SERIAL.value), "2300000000000")
         self.assertEqual(data.get(FieldName.DC_I_P_TOTAL.value), 10)
         self.assertEqual(data.get(FieldName.AC_I_P_TOTAL.value), 8)
         self.assertEqual(data.get(FieldName.AC_O_P_TOTAL.value), 9)
@@ -59,5 +61,7 @@ class TestDeviceReader(unittest.IsolatedAsyncioTestCase):
         )
 
         data = await reader.read()
+
+        self.assertIsNotNone(data)
 
         self.assertIsNone(data.get(FieldName.B_SOC_TOTAL.value))

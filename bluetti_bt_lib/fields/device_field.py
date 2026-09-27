@@ -1,3 +1,4 @@
+from enum import Enum
 from typing import Any
 
 from .field_name import FieldName
@@ -9,13 +10,12 @@ class DeviceField:
         name: FieldName,
         address: int,
         size: int,
-        **kwargs,
-    ):
+    ) -> None:
         self.name = name.value
         self.address = address
         self.size = size
 
-    def parse(self, data: bytes) -> Any:
+    def parse(self, data: bytes) -> bool | int | float | Enum | str | None:
         raise NotImplementedError
 
     def is_writeable(self) -> bool:

@@ -13,7 +13,7 @@ _LOGGER = logging.getLogger(__name__)
 
 class DeviceRecognizerResult:
     def __init__(
-        self, name: str, iot_version: int, encrypted: bool, sn: int | None = None
+        self, name: str, iot_version: int, encrypted: bool, sn: str | None = None
     ):
         self.name = name
         self.iot_version = iot_version
@@ -101,7 +101,7 @@ async def recognize_device(
 
             sn_data = data.get(FieldName.D_SERIAL.value)
 
-            if not isinstance(sn_data, int) or sn_data == "":
+            if not isinstance(sn_data, str) or sn_data == "":
                 # Should never happen
                 return DeviceRecognizerResult(
                     type_data,
@@ -114,7 +114,7 @@ async def recognize_device(
                 type_data,
                 bluetti_device.get_iot_version(),
                 device_reader.config.use_encryption,
-                sn_data,
+                str(sn_data),
             )
 
     return None

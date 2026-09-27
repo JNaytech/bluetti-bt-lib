@@ -1,8 +1,10 @@
 import asyncio
+from enum import Enum
 import logging
 import async_timeout
 from typing import Any, Callable, cast
 from bleak import BleakClient, BleakScanner
+from bleak.backends.characteristic import BleakGATTCharacteristic
 from bleak.backends.device import BLEDevice
 from bleak.exc import BleakError
 from bleak_retry_connector import BleakClientWithServiceCache, establish_connection
@@ -43,11 +45,11 @@ class DeviceReader:
             f"{__name__}.{mac_loggable(mac).replace(':', '_')}"
         )
 
-        self.device = None
-        self.client = None
+        self.device: BLEDevice | None = None
+        self.client: BleakClient | None = None
 
         self.has_notifier = False
-        self.current_registers = None
+        self.current_registers: DeviceRegister | None = None
         self.notify_response = bytearray()
         self.notify_future: asyncio.Future[Any] | None = None
         self.encryption = BluettiEncryption()
@@ -55,7 +57,7 @@ class DeviceReader:
 
     async def read(
         self, only_registers: list[ReadableRegisters] | None = None, raw: bool = False
-    ) -> dict | None:
+    ) -> dict[str, bool | int | float | Enum | str | bytes] | None:
 
         registers = self.bluetti_device.get_polling_registers()
         pack_registers = self.bluetti_device.get_pack_polling_registers()
@@ -64,7 +66,7 @@ class DeviceReader:
             registers = only_registers
             pack_registers = []
 
-        parsed_data: dict = {}
+        parsed_data: dict[str, bool | int | float | Enum | str | bytes] = {}
 
         self.logger.debug("Reading device registers")
 
@@ -84,13 +86,17 @@ class DeviceReader:
 
                         if self.device is None:
                             self.logger.error("Device not found")
-                            return
+                            return None
 
                     self.logger.debug("Connecting to device")
 
                     if self.ble_client:
                         self.client = self.ble_client
                     else:
+                        if self.device is None:
+                            self.logger.error("Device, Client or mac have to be set")
+                            return None
+
                         self.client = await establish_connection(
                             BleakClientWithServiceCache,
                             self.device,
@@ -124,7 +130,7 @@ class DeviceReader:
 
                         if raw:
                             d = {}
-                            d[register.starting_address] = body
+                            d[str(register.starting_address)] = body
                             parsed_data.update(d)
                             continue
 
@@ -155,7 +161,7 @@ class DeviceReader:
 
                             if raw:
                                 d = {}
-                                d[register.starting_address] = body
+                                d[str(register.starting_address)] = body
                                 parsed_data.update(d)
                                 continue
 
@@ -179,15 +185,16 @@ class DeviceReader:
                 self.logger.warning("Unknown error %s", err)
                 return None
             finally:
-                if self.has_notifier:
-                    try:
-                        await self.client.stop_notify(NOTIFY_UUID)
-                        self.logger.debug("Stopped notifier")
-                    except:
-                        # Ignore errors here
-                        pass
-                    self.has_notifier = False
                 if self.client:
+                    if self.has_notifier:
+                        try:
+                            await self.client.stop_notify(NOTIFY_UUID)
+                            self.logger.debug("Stopped notifier")
+                        except:
+                            # Ignore errors here
+                            pass
+                        self.has_notifier = False
+
                     await self.client.disconnect()
                     self.logger.debug("Disconnected from device")
 
@@ -199,7 +206,7 @@ class DeviceReader:
             self.encrypted_buffer.clear()
 
             # Check if dict is empty
-            if not parsed_data:
+            if len(parsed_data.keys()) == 0:
                 return None
 
             return parsed_data
@@ -220,6 +227,9 @@ class DeviceReader:
             command_bytes = self.encryption.aes_encrypt(
                 command_bytes, self.encryption.secure_aes_key, None
             )
+
+        if not self.client:
+            return bytes()
 
         try:
             # Make request
@@ -257,9 +267,14 @@ class DeviceReader:
 
         return header_size + padded_len
 
-    async def _notification_handler(self, _: int, data: bytearray):
+    async def _notification_handler(
+        self, _: BleakGATTCharacteristic, data: bytes | bytearray
+    ) -> None:
         """Handle bt data."""
         self.logger.debug("Got new data (%d bytes)", len(data))
+
+        if not self.client:
+            return
 
         if self.config.use_encryption is True:
             message = Message(data)
@@ -269,6 +284,10 @@ class DeviceReader:
 
                 if message.type == MessageType.CHALLENGE:
                     challenge_response = self.encryption.msg_challenge(message)
+
+                    if not challenge_response:
+                        return
+
                     await self.client.write_gatt_char(WRITE_UUID, challenge_response)
                     return
 

@@ -8,7 +8,7 @@ class TestSerialNumberField(unittest.TestCase):
 
     def test_parse(self):
         result = self.field.parse(b"\x00\x01\x00\x00\x00\x00\x00\x00")
-        self.assertEqual(result, 1)
+        self.assertEqual(result, "1")
 
     def test_parse_invalid_length(self):
         result = self.field.parse(b"\x00\x01\x00\x01")

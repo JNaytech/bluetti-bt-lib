@@ -9,7 +9,7 @@ class TestVersionField(unittest.TestCase):
 
     def test_parse(self):
         result = self.field.parse(b"\x91\x96\x00\x01")
-        self.assertEqual(result, Decimal("1028.06"))
+        self.assertEqual(result, "1028.06")
 
     def test_parse_invalid_length(self):
         result = self.field.parse(b"\x00\x01")
