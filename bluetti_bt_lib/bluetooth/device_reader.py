@@ -84,7 +84,7 @@ class DeviceReader:
                         )
 
                         if self.device is None:
-                            self.logger.error("Device not found")
+                            self.logger.debug("Device not found")
                             return None
 
                     self.logger.debug("Connecting to device")
@@ -93,7 +93,7 @@ class DeviceReader:
                         self.client = self.ble_client
                     else:
                         if self.device is None:
-                            self.logger.error("Device, Client or mac have to be set")
+                            self.logger.debug("Device, Client or mac have to be set")
                             return None
 
                         self.client = await establish_connection(
@@ -175,13 +175,13 @@ class DeviceReader:
                             parsed_data.update(parsed)
 
             except TimeoutError:
-                self.logger.warning("Timeout")
+                self.logger.debug("Timeout")
                 return None
             except BleakError as err:
-                self.logger.warning("Bleak error: %s", err)
+                self.logger.debug("Bleak error: %s", err)
                 return None
             except BaseException as err:
-                self.logger.warning("Unknown error %s", err)
+                self.logger.debug("Unknown error %s", err)
                 return None
             finally:
                 if self.client:
@@ -243,7 +243,7 @@ class DeviceReader:
 
             return cast(bytes, res)
         except:
-            self.logger.warning("Error while reading data")
+            self.logger.debug("Error while reading data")
 
         return bytes()
 
@@ -297,7 +297,7 @@ class DeviceReader:
                 return
 
             if self.encryption.unsecure_aes_key is None:
-                self.logger.error(
+                self.logger.debug(
                     "Received encrypted message before key initialization"
                 )
                 return
@@ -333,7 +333,7 @@ class DeviceReader:
                     self.encryption.aes_decrypt(complete_message, key, iv)
                 )
             except ValueError as e:
-                self.logger.error("Decryption failed: %s", e)
+                self.logger.debug("Decryption failed: %s", e)
                 self.encrypted_buffer.clear()
                 return
 

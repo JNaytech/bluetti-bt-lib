@@ -38,7 +38,7 @@ def hexsum(s: bytes | memoryview, sz: int) -> bytes:
 
 def hexxor(a: bytes, b: bytes) -> bytes | None:
     if len(a) != len(b):
-        _LOGGER.error("Can only XOR two identical length byte strings")
+        _LOGGER.debug("Can only XOR two identical length byte strings")
         return None
     return bytes([x ^ y for x, y in zip(a, b)])
 
@@ -181,7 +181,7 @@ class Message:
         message_checksum = self.checksum
         computed_checksum = hexsum(self.body, len(message_checksum))
         if computed_checksum != message_checksum:
-            _LOGGER.error("Checksum error!")
+            _LOGGER.debug("Checksum error!")
         _LOGGER.debug("Checksum OK")
 
 
@@ -255,15 +255,15 @@ class BluettiEncryption:
         _LOGGER.debug("Received challenge")
 
         if len(message.data) != 4:
-            _LOGGER.error("Unexpected message length")
+            _LOGGER.debug("Unexpected message length")
             return None
 
         self.unsecure_aes_iv = hashlib.md5(message.data[::-1].tobytes()).digest()
         static_key = bytes.fromhex(LOCAL_AES_KEY)
         self.unsecure_aes_key = hexxor(self.unsecure_aes_iv, static_key)
 
-        _LOGGER.info("Unsecure iv  " + self.unsecure_aes_iv.hex())
-        _LOGGER.info("Unsecure key " + self.unsecure_aes_key.hex())
+        _LOGGER.debug("Unsecure iv  " + self.unsecure_aes_iv.hex())
+        _LOGGER.debug("Unsecure key " + self.unsecure_aes_key.hex())
 
         body = bytes.fromhex("0204") + self.unsecure_aes_iv[8:12]
         return b"".join([KEX_MAGIC, body, hexsum(body, 2)])
@@ -297,7 +297,7 @@ class BluettiEncryption:
             raise ValueError("Key acceptance response is not 0")
 
         self.secure_aes_key = self.my_privkey.exchange(ec.ECDH(), self.peer_pubkey)
-        _LOGGER.info("Secure key   " + self.secure_aes_key.hex())
+        _LOGGER.debug("Secure key   " + self.secure_aes_key.hex())
 
     def getKeyIv(self) -> tuple[bytes | None, bytes | None] | tuple[bytes, None]:
         return (

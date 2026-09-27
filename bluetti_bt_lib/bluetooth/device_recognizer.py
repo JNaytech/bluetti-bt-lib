@@ -69,12 +69,12 @@ async def recognize_device(
 
             if type_data is None:
                 # We have a problem
-                _LOGGER.error("No data in device type type_data")
+                _LOGGER.debug("No data in device type type_data")
                 continue
 
             if not isinstance(type_data, str):
                 # We have a problem
-                _LOGGER.error("Invalid data in device type type_data")
+                _LOGGER.debug("Invalid data in device type type_data")
                 continue
 
             if type_data == "":
@@ -83,7 +83,7 @@ async def recognize_device(
 
             if type_data not in DEVICES.keys():
                 # Some V2 Devices populate the V1 register for type, so we need to check here
-                _LOGGER.warning("Device has populated type_data with trash data")
+                _LOGGER.debug("Device has populated type_data with trash data")
                 continue
 
             data = await device_reader.read(
